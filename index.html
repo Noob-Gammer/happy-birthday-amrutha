@@ -31,6 +31,61 @@
       padding-bottom: 60px;
     }
 
+    /* Floating Music Toggle */
+    .music-fab {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #fecdd3;
+      padding: 8px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 18px rgba(244, 63, 94, 0.18);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e11d48;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .music-fab:hover {
+      transform: scale(1.05);
+    }
+
+    .disc {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e11d48;
+      position: relative;
+    }
+
+    .disc::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .spinning {
+      animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
     .container {
       max-width: 680px;
       margin: 0 auto;
@@ -251,6 +306,19 @@
 </head>
 <body>
 
+  <!-- Floating Audio Player -->
+  <div class="music-fab" id="musicBtn" onclick="toggleMusic()">
+    <span class="disc" id="musicDisc"></span>
+    <span id="musicLabel">Play Music 🎵</span>
+  </div>
+
+  <!-- Audio element with cheerful acoustic tune fallback -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music.mp3" type="audio/mp3">
+    <!-- Clean, gentle acoustic guitar background music -->
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mp3">
+  </audio>
+
   <div class="container">
     <div class="header">
       <div class="date-pill">Special Day ✨ October 27</div>
@@ -269,7 +337,7 @@
           </p>
         </div>
       </div>
-      <button class="celebration-btn" onclick="fireBurst()">
+      <button class="celebration-btn" onclick="celebrateAndPlay()">
         🎉 Tap for Birthday Magic!
       </button>
     </div>
@@ -286,17 +354,17 @@
 
     <div class="cards-title">Little Things That Make You Great ✨</div>
     <div class="traits-grid">
-      <div class="trait-card" onclick="cardCheer('Kind Soul 💖')">
+      <div class="trait-card" onclick="cardCheer()">
         <div class="trait-emoji">🌸</div>
         <div class="trait-title">Always Caring</div>
         <div class="trait-desc">Checking in on people and making everyone feel valued.</div>
       </div>
-      <div class="trait-card" onclick="cardCheer('Best Smile 😊')">
+      <div class="trait-card" onclick="cardCheer()">
         <div class="trait-emoji">✨</div>
         <div class="trait-title">Bright Energy</div>
         <div class="trait-desc">That warm smile that instantly lights up the whole room.</div>
       </div>
-      <div class="trait-card" onclick="cardCheer('Inspiring 🚀')">
+      <div class="trait-card" onclick="cardCheer()">
         <div class="trait-emoji">🌱</div>
         <div class="trait-title">Determined</div>
         <div class="trait-desc">Always working hard and inspiring the people around you.</div>
@@ -316,6 +384,36 @@
   </div>
 
   <script>
+    const music = document.getElementById('bgMusic');
+    const disc = document.getElementById('musicDisc');
+    const label = document.getElementById('musicLabel');
+    let isPlaying = false;
+
+    function toggleMusic() {
+      if (isPlaying) {
+        music.pause();
+        disc.classList.remove('spinning');
+        label.innerText = 'Play Music 🎵';
+        isPlaying = false;
+      } else {
+        music.play().then(() => {
+          disc.classList.add('spinning');
+          label.innerText = 'Music On ✨';
+          isPlaying = true;
+        }).catch(err => {
+          console.log("Audio play blocked by browser policy:", err);
+        });
+      }
+    }
+
+    function celebrateAndPlay() {
+      // Start music automatically if she hasn't started it yet
+      if (!isPlaying) {
+        toggleMusic();
+      }
+      fireBurst();
+    }
+
     function showFallback() {
       document.getElementById('profile-img').style.display = 'none';
       document.getElementById('fallback-ui').style.display = 'flex';
@@ -368,7 +466,7 @@
       fireBurst();
     }
 
-    function cardCheer(title) {
+    function cardCheer() {
       confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
     }
 
